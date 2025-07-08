@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useFormStatus } from "react-dom"
 import { toast } from "@/components/ui/use-toast"
+import { useEffect, useState } from "react"
 
 function SubmitButton({ children }: { children: React.ReactNode }) {
   const { pending } = useFormStatus()
@@ -23,8 +24,21 @@ function SubmitButton({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default async function ProductsPage() {
-  const products = await getProducts()
+export default function ProductsPage() {
+  const [products, setProducts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState<{ [id: string]: boolean }>({})
+
+  useEffect(() => {
+    async function fetchProducts() {
+      setLoading(true)
+      const data = await getProducts()
+      setProducts(data)
+      setLoading(false)
+    }
+    fetchProducts()
+  }, [])
 
   const handleCreate = async (formData: FormData) => {
     const result = await createProduct(formData)
@@ -33,6 +47,11 @@ export default async function ProductsPage() {
       description: result.message,
       variant: result.success ? "default" : "destructive",
     })
+    if (result.success) {
+      const data = await getProducts()
+      setProducts(data)
+      setCreateDialogOpen(false)
+    }
   }
 
   const handleUpdate = async (formData: FormData) => {
@@ -42,6 +61,12 @@ export default async function ProductsPage() {
       description: result.message,
       variant: result.success ? "default" : "destructive",
     })
+    if (result.success) {
+      const data = await getProducts()
+      setProducts(data)
+      const productId = formData.get("product_id") as string
+      setEditDialogOpen((prev) => ({ ...prev, [productId]: false }))
+    }
   }
 
   const handleDelete = async (productId: string) => {
@@ -52,6 +77,10 @@ export default async function ProductsPage() {
         description: result.message,
         variant: result.success ? "default" : "destructive",
       })
+      if (result.success) {
+        const data = await getProducts()
+        setProducts(data)
+      }
     }
   }
 
@@ -62,7 +91,7 @@ export default async function ProductsPage() {
           <h1 className="text-3xl font-bold tracking-tight">Products</h1>
           <p className="text-muted-foreground">Manage your product inventory.</p>
         </div>
-        <Dialog>
+        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
@@ -123,7 +152,13 @@ export default async function ProductsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.length === 0 ? (
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center text-muted-foreground">
+                    Loading...
+                  </TableCell>
+                </TableRow>
+              ) : products.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted-foreground">
                     No products found.
@@ -137,9 +172,27 @@ export default async function ProductsPage() {
                     <TableCell>${product.price.toFixed(2)}</TableCell>
                     <TableCell>{product.stock_quantity}</TableCell>
                     <TableCell className="text-right">
-                      <Dialog>
+                      <Dialog
+                        open={!!editDialogOpen[product.product_id]}
+                        onOpenChange={(open) =>
+                          setEditDialogOpen((prev) => ({
+                            ...prev,
+                            [product.product_id]: open,
+                          }))
+                        }
+                      >
                         <DialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="mr-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="mr-2"
+                            onClick={() =>
+                              setEditDialogOpen((prev) => ({
+                                ...prev,
+                                [product.product_id]: true,
+                              }))
+                            }
+                          >
                             <Pencil className="h-4 w-4" />
                             <span className="sr-only">Edit</span>
                           </Button>

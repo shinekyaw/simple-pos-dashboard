@@ -1,27 +1,40 @@
+
+"use client"
 import type React from "react"
-import type { Metadata } from "next"
 import { Inter } from "next/font/google"
 import "./globals.css"
 import { AuthProvider } from "@/lib/auth-context"
+import { Toaster } from "@/components/ui/toaster"
+import { ProtectedRoute } from "@/components/protected-route"
+import { DashboardLayout } from "@/components/dashboard-layout"
+import { usePathname } from "next/navigation"
 
 const inter = Inter({ subsets: ["latin"] })
 
-export const metadata: Metadata = {
-  title: "Admin Dashboard",
-  description: "A modern admin dashboard built with Next.js and Supabase",
-    generator: 'v0.dev'
-}
+export default function RootLayout({ children }: { children: React.ReactNode }) {
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+
+  const pathname = usePathname();
+  if (pathname === "/login") {
+    return (
+      <html lang="en">
+        <body className={inter.className}>
+          <AuthProvider>{children}</AuthProvider>
+          <Toaster />
+        </body>
+      </html>
+    );
+  }
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <ProtectedRoute>
+            <DashboardLayout>{children}</DashboardLayout>
+          </ProtectedRoute>
+        </AuthProvider>
+        <Toaster />
       </body>
     </html>
-  )
+  );
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { useEffect, useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -22,8 +23,14 @@ function SubmitButton({ children }: { children: React.ReactNode }) {
   )
 }
 
-export default async function CustomersPage() {
-  const customers = await getCustomers()
+export default function CustomersPage() {
+  const [customers, setCustomers] = useState<any[]>([])
+  const [createDialogOpen, setCreateDialogOpen] = useState(false)
+  const [editDialogOpen, setEditDialogOpen] = useState<{ [id: string]: boolean }>({})
+
+  useEffect(() => {
+    getCustomers().then(setCustomers)
+  }, [])
 
   const handleCreate = async (formData: FormData) => {
     const result = await createCustomer(formData)
@@ -32,6 +39,10 @@ export default async function CustomersPage() {
       description: result.message,
       variant: result.success ? "default" : "destructive",
     })
+    if (result.success) {
+      setCustomers(await getCustomers())
+      setCreateDialogOpen(false)
+    }
   }
 
   const handleUpdate = async (formData: FormData) => {
@@ -41,6 +52,11 @@ export default async function CustomersPage() {
       description: result.message,
       variant: result.success ? "default" : "destructive",
     })
+    if (result.success) {
+      setCustomers(await getCustomers())
+      const customerId = formData.get("customer_id") as string
+      setEditDialogOpen((prev) => ({ ...prev, [customerId]: false }))
+    }
   }
 
   const handleDelete = async (customerId: string) => {
@@ -51,6 +67,9 @@ export default async function CustomersPage() {
         description: result.message,
         variant: result.success ? "default" : "destructive",
       })
+      if (result.success) {
+        setCustomers(await getCustomers())
+      }
     }
   }
 
@@ -61,7 +80,7 @@ export default async function CustomersPage() {
           <h1 className="text-3xl font-bold tracking-tight">Customers</h1>
           <p className="text-muted-foreground">Manage your customer database.</p>
         </div>
-        <Dialog>
+        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
@@ -128,9 +147,27 @@ export default async function CustomersPage() {
                     <TableCell>{customer.email}</TableCell>
                     <TableCell>{customer.phone}</TableCell>
                     <TableCell className="text-right">
-                      <Dialog>
+                      <Dialog
+                        open={!!editDialogOpen[customer.customer_id]}
+                        onOpenChange={(open) =>
+                          setEditDialogOpen((prev) => ({
+                            ...prev,
+                            [customer.customer_id]: open,
+                          }))
+                        }
+                      >
                         <DialogTrigger asChild>
-                          <Button variant="ghost" size="icon" className="mr-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="mr-2"
+                            onClick={() =>
+                              setEditDialogOpen((prev) => ({
+                                ...prev,
+                                [customer.customer_id]: true,
+                              }))
+                            }
+                          >
                             <Pencil className="h-4 w-4" />
                             <span className="sr-only">Edit</span>
                           </Button>

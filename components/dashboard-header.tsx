@@ -19,8 +19,8 @@ export function DashboardHeader() {
   }
 
   return (
-    <header className="bg-background border-b">
-      <div className="flex items-center justify-between px-6 py-4">
+    <header className="bg-background border-b h-16">
+      <div className="flex items-center justify-between px-6 py-4 h-16">
         <div className="flex items-center space-x-4"></div>
 
         <div className="flex items-center space-x-4">

@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 export default async function SalesPage() {
   const sales = await getSales()
 
+  console.log("Sales data:", sales)
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -44,7 +46,7 @@ export default async function SalesPage() {
                 sales.map((sale) => (
                   <TableRow key={sale.sale_id}>
                     <TableCell className="font-mono text-xs">{sale.sale_id.substring(0, 8)}...</TableCell>
-                    <TableCell>{(sale.Customers as any)?.name || "N/A"}</TableCell>
+                    <TableCell>{(sale.customers as any)?.name || "N/A"}</TableCell>
                     <TableCell>{new Date(sale.sale_date).toLocaleString()}</TableCell>
                     <TableCell className="text-right">${sale.total_amount.toFixed(2)}</TableCell>
                     <TableCell className="text-right">
@@ -91,7 +93,7 @@ async function SaleDetailsDialog({ saleId }: { saleId: string }) {
       <div className="grid gap-4 py-4">
         <div className="grid grid-cols-2 gap-2">
           <p className="font-medium">Customer:</p>
-          <p>{(sale.Customers as any)?.name || "N/A"}</p>
+          <p>{(sale.customers as any)?.name || "N/A"}</p>
           <p className="font-medium">Date:</p>
           <p>{new Date(sale.sale_date).toLocaleString()}</p>
           <p className="font-medium">Total Amount:</p>
@@ -109,9 +111,9 @@ async function SaleDetailsDialog({ saleId }: { saleId: string }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {(sale.SaleItems as any[]).map((item) => (
+            {((sale.sale_items as any[]) ?? []).map((item) => (
               <TableRow key={item.sale_item_id}>
-                <TableCell>{(item.Products as any)?.name || "N/A"}</TableCell>
+                <TableCell>{(item.products as any)?.name || "N/A"}</TableCell>
                 <TableCell>{item.quantity}</TableCell>
                 <TableCell className="text-right">${item.unit_price.toFixed(2)}</TableCell>
                 <TableCell className="text-right">${(item.quantity * item.unit_price).toFixed(2)}</TableCell>

@@ -35,7 +35,7 @@ export async function createCustomer(formData: FormData) {
     return { success: false, message: error.message }
   }
 
-  revalidatePath("/dashboard/customers")
+  revalidatePath("/customers")
   return { success: true, message: "Customer created successfully." }
 }
 
@@ -64,7 +64,7 @@ export async function updateCustomer(formData: FormData) {
     return { success: false, message: error.message }
   }
 
-  revalidatePath("/dashboard/customers")
+  revalidatePath("/customers")
   return { success: true, message: "Customer updated successfully." }
 }
 
@@ -93,7 +93,7 @@ export async function deleteCustomer(customer_id: string) {
     return { success: false, message: error.message }
   }
 
-  revalidatePath("/dashboard/customers")
+  revalidatePath("/customers")
   return { success: true, message: "Customer deleted successfully." }
 }
 
@@ -137,7 +137,7 @@ export async function createProduct(formData: FormData) {
     return { success: false, message: error.message }
   }
 
-  revalidatePath("/dashboard/products")
+  revalidatePath("/products")
   return { success: true, message: "Product created successfully." }
 }
 
@@ -174,7 +174,7 @@ export async function updateProduct(formData: FormData) {
     return { success: false, message: error.message }
   }
 
-  revalidatePath("/dashboard/products")
+  revalidatePath("/products")
   return { success: true, message: "Product updated successfully." }
 }
 
@@ -203,7 +203,7 @@ export async function deleteProduct(product_id: string) {
     return { success: false, message: error.message }
   }
 
-  revalidatePath("/dashboard/products")
+  revalidatePath("/products")
   return { success: true, message: "Product deleted successfully." }
 }
 
@@ -216,6 +216,13 @@ export async function getSales() {
       *,
       customers (
         name
+      ),
+      sale_items (
+        *,
+        products (
+          name,
+          price
+        )
       )
     `)
     .order("sale_date", { ascending: false })
@@ -304,9 +311,9 @@ export async function createSale(customer_id: string, total_amount: number, item
       }
     }
 
-    revalidatePath("/dashboard/sales")
-    revalidatePath("/dashboard/pos")
-    revalidatePath("/dashboard/products")
+    revalidatePath("/sales")
+    revalidatePath("/pos")
+    revalidatePath("/products")
     return { success: true, message: "Sale created successfully." }
   } catch (error) {
     console.error("Unexpected error creating sale:", error)
