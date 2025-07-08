@@ -1,5 +1,6 @@
 "use client"
 import { Button } from "@/components/ui/button"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { useAuth } from "@/lib/auth-context"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
@@ -24,7 +25,7 @@ export function DashboardHeader() {
         <div className="flex items-center space-x-4"></div>
 
         <div className="flex items-center space-x-4">
-          {/* ThemeToggle removed */}
+          <ThemeToggle />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
