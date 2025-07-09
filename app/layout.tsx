@@ -1,40 +1,31 @@
-"use client"
-import type React from "react"
-import { Inter } from "next/font/google"
-import "./globals.css"
-import { AuthProvider } from "@/lib/auth-context"
-import { Toaster } from "@/components/ui/toaster"
-import { ProtectedRoute } from "@/components/protected-route"
-import { DashboardLayout } from "@/components/dashboard-layout"
-import { usePathname } from "next/navigation"
-import { ThemeProvider } from "@/components/theme-provider"
+import type React from "react";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { AuthProvider } from "@/lib/auth-context";
+import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/components/theme-provider";
+import { ClientLayoutWrapper } from "@/components/client-layout-wrapper";
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] });
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export const metadata: Metadata = {
+  generator: "v0.dev",
+};
 
-
-  const pathname = usePathname();
-  if (pathname === "/login") {
-    return (
-      <html lang="en" suppressHydrationWarning>
-        <body className={inter.className}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <AuthProvider>{children}</AuthProvider>
-            <Toaster />
-          </ThemeProvider>
-        </body>
-      </html>
-    );
-  }
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
-            <ProtectedRoute>
-              <DashboardLayout>{children}</DashboardLayout>
-            </ProtectedRoute>
+            <ClientLayoutWrapper>
+              {children}
+            </ClientLayoutWrapper>
           </AuthProvider>
           <Toaster />
         </ThemeProvider>
@@ -42,7 +33,3 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
-
-export const metadata = {
-      generator: 'v0.dev'
-    };
