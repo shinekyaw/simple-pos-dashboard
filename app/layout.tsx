@@ -1,4 +1,3 @@
-
 "use client"
 import type React from "react"
 import { Inter } from "next/font/google"
@@ -43,3 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     </html>
   );
 }
+
+export const metadata = {
+      generator: 'v0.dev'
+    };
